@@ -1,3 +1,7 @@
 ../TextualProtocol/Src/textualProtocol.c:11:6:textualProtocolInit	1
-../TextualProtocol/Src/textualProtocol.c:22:6:textualProtocolAppendByte	7
-../TextualProtocol/Src/textualProtocol.c:44:6:textualProtocolClear	1
+../TextualProtocol/Src/textualProtocol.c:26:6:textualProtocolAppendByte	9
+../TextualProtocol/Src/textualProtocol.c:60:6:textualProtocolClear	1
+../TextualProtocol/Src/textualProtocol.c:70:6:textualProtocolSendSyntaxError	1
+../TextualProtocol/Src/textualProtocol.c:75:6:textualProtocolSendNewLine	1
+../TextualProtocol/Src/textualProtocol.c:80:6:textualProtocolDecode	2
+../TextualProtocol/Src/textualProtocol.c:94:6:textualProtocolGetEchoEnable	1

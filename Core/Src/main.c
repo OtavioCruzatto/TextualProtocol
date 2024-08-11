@@ -91,7 +91,10 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	if (huart == &huart2)
 	{
 		HAL_UART_Receive_IT(&huart2, &receivedByte, 1);
-		//HAL_UART_Transmit(&huart2, &receivedByte, 1, HAL_MAX_DELAY);
+		if (textualProtocolGetEchoEnable(&textProt) == TRUE)
+		{
+			HAL_UART_Transmit(&huart2, &receivedByte, 1, HAL_MAX_DELAY);
+		}
 		textualProtocolAppendByte(&textProt, receivedByte);
 		receivedByte = 0x00;
 	}
@@ -133,7 +136,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   HAL_TIM_Base_Start_IT(&htim9);
-  textualProtocolInit(&textProt, '#', ',');
+  textualProtocolInit(&textProt, '$', ',', huart2);
   appInit(&app, LED_GPIO_Port, LED_Pin, huart2);
   HAL_UART_Receive_IT(&huart2, &receivedByte, 1);
 
@@ -173,14 +176,16 @@ int main(void)
 		  case 1:
 			  if (textProt.enableDecoding == TRUE)
 			  {
-				  HAL_UART_Transmit(&huart2, textProt.dataPacket, textProt.length, HAL_MAX_DELAY);
-				  HAL_UART_Transmit(&huart2, "\r\n", 2, HAL_MAX_DELAY);
-				  textualProtocolClear(&textProt);
+				  textualProtocolDecode(&textProt);
 			  }
 			  stateMachine = 2;
 			  break;
 
 		  case 2:
+			  if (sendDataDelay >= DELAY_500_MILISECONDS)
+			  {
+				  sendDataDelay = 0;
+			  }
 			  stateMachine = 3;
 			  break;
 
