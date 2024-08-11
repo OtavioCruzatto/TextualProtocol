@@ -1,0 +1,3 @@
+../TextualProtocol/Src/textualProtocol.c:11:6:textualProtocolInit	16	static
+../TextualProtocol/Src/textualProtocol.c:22:6:textualProtocolAppendByte	16	static
+../TextualProtocol/Src/textualProtocol.c:44:6:textualProtocolClear	16	static

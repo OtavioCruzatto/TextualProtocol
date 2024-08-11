@@ -22,6 +22,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
+#include "textualProtocol.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -52,6 +54,7 @@ uint8_t stateMachine = 0x00;
 uint16_t sendDataDelay = 0;
 uint16_t blinkLedDelay = 0;
 
+TextualProtocol textProt;
 App app;
 
 /* USER CODE END PV */
@@ -88,7 +91,8 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	if (huart == &huart2)
 	{
 		HAL_UART_Receive_IT(&huart2, &receivedByte, 1);
-		HAL_UART_Transmit(&huart2, &receivedByte, 1, HAL_MAX_DELAY);
+		//HAL_UART_Transmit(&huart2, &receivedByte, 1, HAL_MAX_DELAY);
+		textualProtocolAppendByte(&textProt, receivedByte);
 		receivedByte = 0x00;
 	}
 }
@@ -129,6 +133,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   HAL_TIM_Base_Start_IT(&htim9);
+  textualProtocolInit(&textProt, '#', ',');
   appInit(&app, LED_GPIO_Port, LED_Pin, huart2);
   HAL_UART_Receive_IT(&huart2, &receivedByte, 1);
 
@@ -166,6 +171,12 @@ int main(void)
 			  break;
 
 		  case 1:
+			  if (textProt.enableDecoding == TRUE)
+			  {
+				  HAL_UART_Transmit(&huart2, textProt.dataPacket, textProt.length, HAL_MAX_DELAY);
+				  HAL_UART_Transmit(&huart2, "\r\n", 2, HAL_MAX_DELAY);
+				  textualProtocolClear(&textProt);
+			  }
 			  stateMachine = 2;
 			  break;
 
