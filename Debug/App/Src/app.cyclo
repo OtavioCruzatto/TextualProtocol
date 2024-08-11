@@ -1,0 +1,3 @@
+../App/Src/app.c:11:6:appInit	1
+../App/Src/app.c:19:6:appExecuteBlinkLed	1
+../App/Src/app.c:24:10:appGetBlinkDelay	1

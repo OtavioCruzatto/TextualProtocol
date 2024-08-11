@@ -46,6 +46,14 @@ UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 
+uint8_t receivedByte = 0x00;
+uint8_t stateMachine = 0x00;
+
+uint16_t sendDataDelay = 0;
+uint16_t blinkLedDelay = 0;
+
+App app;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -59,6 +67,31 @@ static void MX_USART2_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+/*
+ * Timer interrupt handling (100us)
+ */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+	if (htim == &htim9)
+	{
+		sendDataDelay++;
+		blinkLedDelay++;
+	}
+}
+
+/*
+ * Interrupt for UART RX
+ */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+	if (huart == &huart2)
+	{
+		HAL_UART_Receive_IT(&huart2, &receivedByte, 1);
+		HAL_UART_Transmit(&huart2, &receivedByte, 1, HAL_MAX_DELAY);
+		receivedByte = 0x00;
+	}
+}
 
 /* USER CODE END 0 */
 
@@ -95,6 +128,10 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 
+  HAL_TIM_Base_Start_IT(&htim9);
+  appInit(&app, LED_GPIO_Port, LED_Pin, huart2);
+  HAL_UART_Receive_IT(&huart2, &receivedByte, 1);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -104,6 +141,66 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+
+	  /* ============================================================================= */
+
+	  /********************************* TOP SLOT START ********************************/
+
+	  /* Put here the code to be executed in all cycles before the state machine */
+
+	  /********************************** TOP SLOT END *********************************/
+
+	  /* ============================================================================= */
+
+	  /****************************** STATE MACHINE START ******************************/
+
+	  switch (stateMachine)
+	  {
+		  case 0:
+			  if (blinkLedDelay >= appGetBlinkDelay(&app))
+			  {
+				  appExecuteBlinkLed(&app);
+				  blinkLedDelay = 0;
+			  }
+			  stateMachine = 1;
+			  break;
+
+		  case 1:
+			  stateMachine = 2;
+			  break;
+
+		  case 2:
+			  stateMachine = 3;
+			  break;
+
+		  case 3:
+			  stateMachine = 4;
+			  break;
+
+		  case 4:
+			  stateMachine = 5;
+			  break;
+
+		  case 5:
+			  stateMachine = 0;
+			  break;
+
+		  default:
+			  stateMachine = 0;
+			  break;
+	  }
+
+	  /******************************* STATE MACHINE END *******************************/
+
+	  /* ============================================================================= */
+
+	  /******************************* BOTTOM SLOT START *******************************/
+
+	  /* Put here the code to be executed in all cycles after the state machine */
+
+	  /******************************** BOTTOM SLOT END ********************************/
+
+	  /* ============================================================================= */
   }
   /* USER CODE END 3 */
 }

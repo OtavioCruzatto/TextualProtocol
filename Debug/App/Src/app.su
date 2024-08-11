@@ -1,0 +1,3 @@
+../App/Src/app.c:11:6:appInit	24	static
+../App/Src/app.c:19:6:appExecuteBlinkLed	16	static
+../App/Src/app.c:24:10:appGetBlinkDelay	16	static
