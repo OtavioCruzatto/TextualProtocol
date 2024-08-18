@@ -10,17 +10,30 @@
 
 #include <stdint.h>
 #include <string.h>
+#include <stdio.h>
 #include "defs.h"
 #include "enums.h"
 #include "stm32f4xx_hal.h"
 
 #define	QTY_MIN_RX_DATA_BYTES		2 	// STARTER_CHAR
-#define QTY_MAX_RX_DATA_BYTES		100
+
+/*
+ * QTY_MAX_RX_DATA_BYTES =
+ * QTY_MAX_OF_BYTES_IN_COMMAND +
+ * (QTY_MAX_OF_VALUES * QTY_MAX_OF_BYTES_PER_VALUE) +
+ * QTY_MAX_OF_DELIMITERS +
+ * STARTER_CHAR +
+ * NEW_LINE(CR AND LF) +
+ * NULL_CHAR
+ *
+ * QTY_MAX_RX_DATA_BYTES = 11 + (10 * 21) + 10 + 1 + 2 + 1 = 235
+ */
+#define QTY_MAX_RX_DATA_BYTES		235
 
 #define QTY_MAX_OF_VALUES			10
-#define QTY_MAX_OF_BYTES_PER_VALUE	20
+#define QTY_MAX_OF_BYTES_PER_VALUE	21
 #define QTY_MAX_OF_DELIMITERS		QTY_MAX_OF_VALUES
-#define	QTY_MAX_OF_BYTES_IN_COMMAND	10
+#define	QTY_MAX_OF_BYTES_IN_COMMAND	11
 
 typedef enum ENTER_KEY_VALUE
 {
@@ -79,6 +92,8 @@ void textualProtocolSendNewLine(TextualProtocol *textualProtocol);
 void textualProtocolExtractCommand(TextualProtocol *textualProtocol);
 void textualProtocolFindDelimiters(TextualProtocol *textualProtocol);
 void textualProtocolExtractValues(TextualProtocol *textualProtocol);
+
+void textualProtocolPrintCurrentValues(TextualProtocol *textualProtocol);
 
 Bool textualProtocolGetEchoEnable(TextualProtocol *textualProtocol);
 

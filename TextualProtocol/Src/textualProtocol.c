@@ -172,7 +172,7 @@ void textualProtocolExtractCommand(TextualProtocol *textualProtocol)
 		((textualProtocol->dataPacket[1] >= 'a') && (textualProtocol->dataPacket[1] <= 'z')))
 	{
 		textualProtocol->textualProtocolRxStatus = VALID_RX_TEXTUAL_PROTOCOL;
-		while (textualProtocol->commandLength < QTY_MAX_OF_BYTES_IN_COMMAND)
+		while (textualProtocol->commandLength < (QTY_MAX_OF_BYTES_IN_COMMAND - 1))
 		{
 			if (textualProtocol->dataPacket[i] == textualProtocol->delimiter)
 			{
@@ -219,7 +219,35 @@ void textualProtocolFindDelimiters(TextualProtocol *textualProtocol)
 
 void textualProtocolExtractValues(TextualProtocol *textualProtocol)
 {
+	uint8_t value = 0;
+	uint8_t byte = 0;
+	for (value = 0; value < textualProtocol->qtyOfDelimiters; value++)
+	{
+		for (byte = 0; byte < (QTY_MAX_OF_BYTES_PER_VALUE - 1); byte++)
+		{
+			uint8_t index_delimiter = textualProtocol->indexesOfDelimiters[value];
+			uint8_t data = textualProtocol->dataPacket[index_delimiter + byte + 1];
+			if ((data == ',') || (data == 0))
+			{
+				break;
+			}
 
+			textualProtocol->values[value][byte] = data;
+		}
+	}
+}
+
+void textualProtocolPrintCurrentValues(TextualProtocol *textualProtocol)
+{
+	char message[35];
+	uint8_t value = 0;
+
+	for (value = 0; value < QTY_MAX_OF_VALUES; value++)
+	{
+		memset(message, 0x00, 35);
+		sprintf(message, "Value %d: %s\r\n", value, textualProtocol->values[value]);
+		HAL_UART_Transmit(&textualProtocol->huart, ((uint8_t *) message), strlen(message), HAL_MAX_DELAY);
+	}
 }
 
 Bool textualProtocolGetEchoEnable(TextualProtocol *textualProtocol)

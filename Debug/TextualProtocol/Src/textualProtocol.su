@@ -6,5 +6,6 @@
 ../TextualProtocol/Src/textualProtocol.c:146:6:textualProtocolDecode	16	static
 ../TextualProtocol/Src/textualProtocol.c:166:6:textualProtocolExtractCommand	24	static
 ../TextualProtocol/Src/textualProtocol.c:201:6:textualProtocolFindDelimiters	24	static
-../TextualProtocol/Src/textualProtocol.c:220:6:textualProtocolExtractValues	16	static
-../TextualProtocol/Src/textualProtocol.c:225:6:textualProtocolGetEchoEnable	16	static
+../TextualProtocol/Src/textualProtocol.c:220:6:textualProtocolExtractValues	24	static
+../TextualProtocol/Src/textualProtocol.c:240:6:textualProtocolPrintCurrentValues	64	static
+../TextualProtocol/Src/textualProtocol.c:253:6:textualProtocolGetEchoEnable	16	static

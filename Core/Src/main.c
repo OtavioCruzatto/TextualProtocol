@@ -183,7 +183,7 @@ int main(void)
 			  break;
 
 		  case 2:
-			  if (sendDataDelay >= DELAY_2000_MILISECONDS)
+			  if (sendDataDelay >= DELAY_5000_MILISECONDS)
 			  {
 				  sendDataDelay = 0;
 			  }
@@ -196,6 +196,7 @@ int main(void)
 			  {
 				  HAL_UART_Transmit(&huart2, textProt.command, textProt.commandLength, HAL_MAX_DELAY);
 				  textualProtocolSendNewLine(&textProt);
+				  textualProtocolPrintCurrentValues(&textProt);
 				  textualProtocolClear(&textProt, CLEAR_ALL);
 			  }
 			  break;
