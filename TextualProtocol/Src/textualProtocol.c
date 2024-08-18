@@ -237,10 +237,26 @@ void textualProtocolExtractValues(TextualProtocol *textualProtocol)
 	}
 }
 
-void textualProtocolPrintCurrentValues(TextualProtocol *textualProtocol)
+void textualProtocolPrintCurrentData(TextualProtocol *textualProtocol)
 {
 	char message[35];
 	uint8_t value = 0;
+
+	memset(message, 0x00, 35);
+	sprintf(message, "==============================\r\n");
+	HAL_UART_Transmit(&textualProtocol->huart, ((uint8_t *) message), strlen(message), HAL_MAX_DELAY);
+
+	memset(message, 0x00, 35);
+	sprintf(message, "Starter: '%c'\r\n", textualProtocol->starterChar);
+	HAL_UART_Transmit(&textualProtocol->huart, ((uint8_t *) message), strlen(message), HAL_MAX_DELAY);
+
+	memset(message, 0x00, 35);
+	sprintf(message, "Command: '%s'\r\n", textualProtocol->command);
+	HAL_UART_Transmit(&textualProtocol->huart, ((uint8_t *) message), strlen(message), HAL_MAX_DELAY);
+
+	memset(message, 0x00, 35);
+	sprintf(message, "Delimiter: '%c'\r\n", textualProtocol->delimiter);
+	HAL_UART_Transmit(&textualProtocol->huart, ((uint8_t *) message), strlen(message), HAL_MAX_DELAY);
 
 	for (value = 0; value < QTY_MAX_OF_VALUES; value++)
 	{
@@ -248,6 +264,10 @@ void textualProtocolPrintCurrentValues(TextualProtocol *textualProtocol)
 		sprintf(message, "Value %d: %s\r\n", value, textualProtocol->values[value]);
 		HAL_UART_Transmit(&textualProtocol->huart, ((uint8_t *) message), strlen(message), HAL_MAX_DELAY);
 	}
+
+	memset(message, 0x00, 35);
+	sprintf(message, "==============================\r\n");
+	HAL_UART_Transmit(&textualProtocol->huart, ((uint8_t *) message), strlen(message), HAL_MAX_DELAY);
 }
 
 Bool textualProtocolGetEchoEnable(TextualProtocol *textualProtocol)

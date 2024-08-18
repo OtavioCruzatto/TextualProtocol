@@ -93,7 +93,7 @@ void textualProtocolExtractCommand(TextualProtocol *textualProtocol);
 void textualProtocolFindDelimiters(TextualProtocol *textualProtocol);
 void textualProtocolExtractValues(TextualProtocol *textualProtocol);
 
-void textualProtocolPrintCurrentValues(TextualProtocol *textualProtocol);
+void textualProtocolPrintCurrentData(TextualProtocol *textualProtocol);
 
 Bool textualProtocolGetEchoEnable(TextualProtocol *textualProtocol);
 

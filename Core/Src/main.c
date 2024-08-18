@@ -194,9 +194,7 @@ int main(void)
 			  stateMachine = 4;
 			  if (textProt.textualProtocolRxStatus == VALID_RX_TEXTUAL_PROTOCOL)
 			  {
-				  HAL_UART_Transmit(&huart2, textProt.command, textProt.commandLength, HAL_MAX_DELAY);
-				  textualProtocolSendNewLine(&textProt);
-				  textualProtocolPrintCurrentValues(&textProt);
+				  textualProtocolPrintCurrentData(&textProt);
 				  textualProtocolClear(&textProt, CLEAR_ALL);
 			  }
 			  break;
