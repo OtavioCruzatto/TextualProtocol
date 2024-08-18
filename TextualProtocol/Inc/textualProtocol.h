@@ -14,8 +14,13 @@
 #include "enums.h"
 #include "stm32f4xx_hal.h"
 
-#define	QTY_MIN_RX_DATA_BYTES	1 	// STARTER_CHAR
-#define QTY_MAX_RX_DATA_BYTES	100
+#define	QTY_MIN_RX_DATA_BYTES		2 	// STARTER_CHAR
+#define QTY_MAX_RX_DATA_BYTES		100
+
+#define QTY_MAX_OF_VALUES			10
+#define QTY_MAX_OF_BYTES_PER_VALUE	20
+#define QTY_MAX_OF_DELIMITERS		QTY_MAX_OF_VALUES
+#define	QTY_MAX_OF_BYTES_IN_COMMAND	10
 
 typedef enum ENTER_KEY_VALUE
 {
@@ -29,26 +34,51 @@ typedef enum TEXTUAL_PROTOCOL_RX_STATUS
 	VALID_RX_TEXTUAL_PROTOCOL
 } TextualProtocolRxStatus;
 
+typedef enum TEXTUAL_PROTOCOL_STATUS_MESSAGES
+{
+	STATUS_MESSAGE_OK = 0xAA,
+	STATUS_MESSAGE_SYNTAX_ERROR,
+	STATUS_MESSAGE_UNKNOWN_COMMAND,
+	STATUS_MESSAGE_VALUE_ERROR
+} TextualProtocolStatusMessages;
+
+typedef enum TEXTUAL_PROTOCOL_CLEAR
+{
+	CLEAR_ALL = 0x01,
+	CLEAR_VALUES,
+	CLEAR_DATA_PACKET,
+	CLEAR_INDEXES_OF_DELIMITERS,
+	CLEAR_COMMAND,
+	CLEAR_AFTER_DECODE
+} TextualProtocolClear;
+
 typedef struct
 {
 	uint8_t starterChar;
-	uint8_t separator;
-	uint8_t command;
+	uint8_t delimiter;
+	uint8_t commandLength;
 	uint8_t length;
 	uint8_t byteIndex;
 	Bool enableDecoding;
 	Bool enableEcho;
+	uint8_t qtyOfDelimiters;
 	uint8_t dataPacket[QTY_MAX_RX_DATA_BYTES];
+	uint8_t values[QTY_MAX_OF_VALUES][QTY_MAX_OF_BYTES_PER_VALUE];
+	uint8_t indexesOfDelimiters[QTY_MAX_OF_DELIMITERS];
+	uint8_t command[QTY_MAX_OF_BYTES_IN_COMMAND];
 	TextualProtocolRxStatus textualProtocolRxStatus;
 	UART_HandleTypeDef huart;
 } TextualProtocol;
 
 void textualProtocolInit(TextualProtocol *textualProtocol, uint8_t starterChar, uint8_t separator, UART_HandleTypeDef huart);
 void textualProtocolAppendByte(TextualProtocol *textualProtocol, uint8_t receivedByte);
-void textualProtocolClear(TextualProtocol *textualProtocol);
-void textualProtocolSendSyntaxError(TextualProtocol *textualProtocol);
+void textualProtocolClear(TextualProtocol *textualProtocol, TextualProtocolClear clear);
+void textualProtocolSendStatusMessage(TextualProtocol *textualProtocol, TextualProtocolStatusMessages statusMessage);
 void textualProtocolDecode(TextualProtocol *textualProtocol);
 void textualProtocolSendNewLine(TextualProtocol *textualProtocol);
+void textualProtocolExtractCommand(TextualProtocol *textualProtocol);
+void textualProtocolFindDelimiters(TextualProtocol *textualProtocol);
+void textualProtocolExtractValues(TextualProtocol *textualProtocol);
 
 Bool textualProtocolGetEchoEnable(TextualProtocol *textualProtocol);
 

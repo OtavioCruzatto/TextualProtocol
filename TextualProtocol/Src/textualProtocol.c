@@ -8,19 +8,14 @@
 #include "textualProtocol.h"
 
 // ======== Init =========== //
-void textualProtocolInit(TextualProtocol *textualProtocol, uint8_t starterChar, uint8_t separator, UART_HandleTypeDef huart)
+void textualProtocolInit(TextualProtocol *textualProtocol, uint8_t starterChar, uint8_t delimeter, UART_HandleTypeDef huart)
 {
 	textualProtocol->starterChar = starterChar;
-	textualProtocol->separator = separator;
+	textualProtocol->delimiter = delimeter;
 	textualProtocol->enableEcho = TRUE;
 	textualProtocol->huart = huart;
 
-	textualProtocol->command = 0;
-	textualProtocol->length = 0;
-	textualProtocol->byteIndex = 0;
-	textualProtocol->enableDecoding = FALSE;
-	textualProtocol->textualProtocolRxStatus = INVALID_RX_TEXTUAL_PROTOCOL;
-	memset(textualProtocol->dataPacket, 0x00, QTY_MAX_RX_DATA_BYTES);
+	textualProtocolClear(textualProtocol, CLEAR_ALL);
 }
 
 void textualProtocolAppendByte(TextualProtocol *textualProtocol, uint8_t receivedByte)
@@ -37,8 +32,8 @@ void textualProtocolAppendByte(TextualProtocol *textualProtocol, uint8_t receive
 		}
 		else
 		{
-			textualProtocolClear(textualProtocol);
-			textualProtocolSendSyntaxError(textualProtocol);
+			textualProtocolClear(textualProtocol, CLEAR_ALL);
+			textualProtocolSendStatusMessage(textualProtocol, STATUS_MESSAGE_SYNTAX_ERROR);
 		}
 	}
 	else if ((receivedByte >= ' ') && (receivedByte <= 'z') && (textualProtocol->enableDecoding == FALSE))
@@ -51,25 +46,96 @@ void textualProtocolAppendByte(TextualProtocol *textualProtocol, uint8_t receive
 		}
 		else
 		{
-			textualProtocolClear(textualProtocol);
-			textualProtocolSendSyntaxError(textualProtocol);
+			textualProtocolClear(textualProtocol, CLEAR_ALL);
+			textualProtocolSendStatusMessage(textualProtocol, STATUS_MESSAGE_SYNTAX_ERROR);
 		}
 	}
 }
 
-void textualProtocolClear(TextualProtocol *textualProtocol)
+void textualProtocolClear(TextualProtocol *textualProtocol, TextualProtocolClear clear)
 {
-	textualProtocol->command = 0;
-	textualProtocol->length = 0;
-	textualProtocol->byteIndex = 0;
-	textualProtocol->enableDecoding = FALSE;
-	textualProtocol->textualProtocolRxStatus = INVALID_RX_TEXTUAL_PROTOCOL;
-	memset(textualProtocol->dataPacket, 0x00, QTY_MAX_RX_DATA_BYTES);
+	uint8_t i = 0;
+
+	switch (clear)
+	{
+		case CLEAR_ALL:
+			textualProtocol->length = 0;
+			textualProtocol->byteIndex = 0;
+			textualProtocol->qtyOfDelimiters = 0;
+			textualProtocol->enableDecoding = FALSE;
+			textualProtocol->textualProtocolRxStatus = INVALID_RX_TEXTUAL_PROTOCOL;
+			textualProtocol->commandLength = 0;
+			memset(textualProtocol->dataPacket, 0x00, QTY_MAX_RX_DATA_BYTES);
+			memset(textualProtocol->indexesOfDelimiters, 0x00, QTY_MAX_OF_DELIMITERS);
+			memset(textualProtocol->command, 0x00, QTY_MAX_OF_BYTES_IN_COMMAND);
+
+			for (i = 0; i < QTY_MAX_OF_VALUES; i++)
+			{
+				memset(textualProtocol->values[i], 0x00, QTY_MAX_OF_BYTES_PER_VALUE);
+			}
+
+			break;
+
+		case CLEAR_VALUES:
+			for (i = 0; i < QTY_MAX_OF_VALUES; i++)
+			{
+				memset(textualProtocol->values[i], 0x00, QTY_MAX_OF_BYTES_PER_VALUE);
+			}
+			break;
+
+		case CLEAR_DATA_PACKET:
+			textualProtocol->length = 0;
+			textualProtocol->byteIndex = 0;
+			memset(textualProtocol->dataPacket, 0x00, QTY_MAX_RX_DATA_BYTES);
+			break;
+
+		case CLEAR_INDEXES_OF_DELIMITERS:
+			textualProtocol->qtyOfDelimiters = 0;
+			memset(textualProtocol->indexesOfDelimiters, 0x00, QTY_MAX_OF_DELIMITERS);
+			break;
+
+		case CLEAR_COMMAND:
+			textualProtocol->commandLength = 0;
+			memset(textualProtocol->command, 0x00, QTY_MAX_OF_BYTES_IN_COMMAND);
+			break;
+
+		case CLEAR_AFTER_DECODE:
+			textualProtocol->length = 0;
+			textualProtocol->byteIndex = 0;
+			textualProtocol->qtyOfDelimiters = 0;
+			textualProtocol->enableDecoding = FALSE;
+			memset(textualProtocol->dataPacket, 0x00, QTY_MAX_RX_DATA_BYTES);
+			memset(textualProtocol->indexesOfDelimiters, 0x00, QTY_MAX_OF_DELIMITERS);
+			break;
+
+		default:
+			break;
+	}
 }
 
-void textualProtocolSendSyntaxError(TextualProtocol *textualProtocol)
+void textualProtocolSendStatusMessage(TextualProtocol *textualProtocol, TextualProtocolStatusMessages statusMessage)
 {
-	HAL_UART_Transmit(&textualProtocol->huart, (uint8_t *) "Syntax Error\r\n", 14, HAL_MAX_DELAY);
+	switch (statusMessage)
+	{
+		case STATUS_MESSAGE_OK:
+			HAL_UART_Transmit(&textualProtocol->huart, (uint8_t *) "OK\r\n", 4, HAL_MAX_DELAY);
+			break;
+
+		case STATUS_MESSAGE_SYNTAX_ERROR:
+			HAL_UART_Transmit(&textualProtocol->huart, (uint8_t *) "Syntax Error\r\n", 14, HAL_MAX_DELAY);
+			break;
+
+		case STATUS_MESSAGE_UNKNOWN_COMMAND:
+			HAL_UART_Transmit(&textualProtocol->huart, (uint8_t *) "Unknown Command\r\n", 17, HAL_MAX_DELAY);
+			break;
+
+		case STATUS_MESSAGE_VALUE_ERROR:
+			HAL_UART_Transmit(&textualProtocol->huart, (uint8_t *) "Value Error\r\n", 13, HAL_MAX_DELAY);
+			break;
+
+		default:
+			break;
+	}
 }
 
 void textualProtocolSendNewLine(TextualProtocol *textualProtocol)
@@ -81,15 +147,80 @@ void textualProtocolDecode(TextualProtocol *textualProtocol)
 {
 	if (textualProtocol->dataPacket[0] != textualProtocol->starterChar)
 	{
-		textualProtocolSendSyntaxError(textualProtocol);
-		textualProtocolClear(textualProtocol);
+		textualProtocolSendStatusMessage(textualProtocol, STATUS_MESSAGE_SYNTAX_ERROR);
+		textualProtocolClear(textualProtocol, CLEAR_ALL);
 		return;
 	}
 
-	textualProtocolClear(textualProtocol);
+	textualProtocolExtractCommand(textualProtocol);
+	textualProtocolFindDelimiters(textualProtocol);
+
+	if (textualProtocol->qtyOfDelimiters > 0)
+	{
+		textualProtocolExtractValues(textualProtocol);
+	}
+
+	textualProtocolClear(textualProtocol, CLEAR_AFTER_DECODE);
 }
 
+void textualProtocolExtractCommand(TextualProtocol *textualProtocol)
+{
+	uint8_t i = 1;
 
+	if (((textualProtocol->dataPacket[1] >= 'A') && (textualProtocol->dataPacket[1] <= 'Z'))
+		||
+		((textualProtocol->dataPacket[1] >= 'a') && (textualProtocol->dataPacket[1] <= 'z')))
+	{
+		textualProtocol->textualProtocolRxStatus = VALID_RX_TEXTUAL_PROTOCOL;
+		while (textualProtocol->commandLength < QTY_MAX_OF_BYTES_IN_COMMAND)
+		{
+			if (textualProtocol->dataPacket[i] == textualProtocol->delimiter)
+			{
+				return;
+			}
+			else if ((textualProtocol->dataPacket[i] >= ' ') && (textualProtocol->dataPacket[i] <= '}'))
+			{
+				textualProtocol->command[textualProtocol->commandLength] = textualProtocol->dataPacket[i];
+				textualProtocol->commandLength++;
+				i++;
+			}
+			else
+			{
+				return;
+			}
+		}
+	}
+	else
+	{
+		textualProtocolSendStatusMessage(textualProtocol, STATUS_MESSAGE_UNKNOWN_COMMAND);
+		textualProtocolClear(textualProtocol, CLEAR_ALL);
+		return;
+	}
+}
+
+void textualProtocolFindDelimiters(TextualProtocol *textualProtocol)
+{
+	uint8_t i = 0;
+	uint8_t i_delimeters = 0;
+
+	for (i = 0; i < QTY_MAX_RX_DATA_BYTES; i++)
+	{
+		if (i_delimeters < QTY_MAX_OF_DELIMITERS)
+		{
+			if (textualProtocol->dataPacket[i] == textualProtocol->delimiter)
+			{
+				textualProtocol->indexesOfDelimiters[i_delimeters] = i;
+				textualProtocol->qtyOfDelimiters++;
+				i_delimeters++;
+			}
+		}
+	}
+}
+
+void textualProtocolExtractValues(TextualProtocol *textualProtocol)
+{
+
+}
 
 Bool textualProtocolGetEchoEnable(TextualProtocol *textualProtocol)
 {

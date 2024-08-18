@@ -176,13 +176,14 @@ int main(void)
 		  case 1:
 			  if (textProt.enableDecoding == TRUE)
 			  {
+				  textProt.enableDecoding = FALSE;
 				  textualProtocolDecode(&textProt);
 			  }
 			  stateMachine = 2;
 			  break;
 
 		  case 2:
-			  if (sendDataDelay >= DELAY_500_MILISECONDS)
+			  if (sendDataDelay >= DELAY_2000_MILISECONDS)
 			  {
 				  sendDataDelay = 0;
 			  }
@@ -191,6 +192,12 @@ int main(void)
 
 		  case 3:
 			  stateMachine = 4;
+			  if (textProt.textualProtocolRxStatus == VALID_RX_TEXTUAL_PROTOCOL)
+			  {
+				  HAL_UART_Transmit(&huart2, textProt.command, textProt.commandLength, HAL_MAX_DELAY);
+				  textualProtocolSendNewLine(&textProt);
+				  textualProtocolClear(&textProt, CLEAR_ALL);
+			  }
 			  break;
 
 		  case 4:

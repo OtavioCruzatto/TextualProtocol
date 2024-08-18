@@ -1,7 +1,10 @@
 ../TextualProtocol/Src/textualProtocol.c:11:6:textualProtocolInit	16	static
-../TextualProtocol/Src/textualProtocol.c:26:6:textualProtocolAppendByte	16	static
-../TextualProtocol/Src/textualProtocol.c:60:6:textualProtocolClear	16	static
-../TextualProtocol/Src/textualProtocol.c:70:6:textualProtocolSendSyntaxError	16	static
-../TextualProtocol/Src/textualProtocol.c:75:6:textualProtocolSendNewLine	16	static
-../TextualProtocol/Src/textualProtocol.c:80:6:textualProtocolDecode	16	static
-../TextualProtocol/Src/textualProtocol.c:94:6:textualProtocolGetEchoEnable	16	static
+../TextualProtocol/Src/textualProtocol.c:21:6:textualProtocolAppendByte	16	static
+../TextualProtocol/Src/textualProtocol.c:55:6:textualProtocolClear	24	static
+../TextualProtocol/Src/textualProtocol.c:116:6:textualProtocolSendStatusMessage	16	static
+../TextualProtocol/Src/textualProtocol.c:141:6:textualProtocolSendNewLine	16	static
+../TextualProtocol/Src/textualProtocol.c:146:6:textualProtocolDecode	16	static
+../TextualProtocol/Src/textualProtocol.c:166:6:textualProtocolExtractCommand	24	static
+../TextualProtocol/Src/textualProtocol.c:201:6:textualProtocolFindDelimiters	24	static
+../TextualProtocol/Src/textualProtocol.c:220:6:textualProtocolExtractValues	16	static
+../TextualProtocol/Src/textualProtocol.c:225:6:textualProtocolGetEchoEnable	16	static

@@ -1,0 +1,75 @@
+==========================================================================================================================================================================================
+
+TextualProtocol:
+
+Protocol that uses only ASCII printable characters.
+The protocol frame is build from basic data blocks, there are non-optional and optional data blocks.
+Non-optional data blocks shall have a least one character.
+Optional data blocks can either exist or don't exist.
+
+==========================================================================================================================================================================================
+
+Data blocks:
+
+Block			|			Optional			|		  Example		|
+starter_char	|			  No				|			$			|
+command			|			  No				|		   cmd_01		|
+delimiter		|			  Yes				|			,			|
+Value			|			  Yes				|		    15			|
+
+==========================================================================================================================================================================================
+
+Notes about data blocks:
+
+Starter_char shall be the first character of the frame and can be some ASCII symbol like: !, @, #, $, %, etc...
+Command shall be sent in sequence of the starter_char and don't have a fixed number of characters, examples: cmd, cmd_01, echo, blink, txt, config, menu, disp, etc...
+Delimiter shall be used when values will be sent in the frame and are used to split the command and the sent values from each other.
+Value can be sent to execute some configuration to uC, the values can be texts or numbers (integers and float), the identification of the type shall be made by the software.
+
+==========================================================================================================================================================================================
+
+Observations:
+
+01 - The frame shall contain the same quantity of delimiters and values.
+02 - Delimeters can't be the dot (point) symbol.
+03 - Float numbers shall use dot (point) symbol to split the integer to the decimal part.
+04 - Each frame can have a maximum of 10 values (consequently 10 delimeters).
+05 - The limit size of command is 10 characters.
+06 - Commands shall starts with letters.
+
+==========================================================================================================================================================================================
+
+Length of the frame:
+
+Minimum quantity of characters: 1
+Maximum quantity of characters: 100
+
+==========================================================================================================================================================================================
+
+Examples of the possible frames:
+
+Frame ...................................................................... Possible use
+$menu ...................................................................... Show the entire menu of options.
+$menu,3 .................................................................... Show the firsts three options of the menu.
+$disp,1,Text to show 1 ..................................................... Show the message "Text to show 1" in the first line of an LCD 16x2 display.
+$disp,2,Text to show 2 ..................................................... Show the message "Text to show 2" in the second line of an LCD 16x2 display.
+$network,192.168.100.1,30000 ............................................... Configs the IP to 192.168.100.1 and the port to 30000 in some network.
+$btname,earbud01 ........................................................... Configs the name of some bluetooth device.
+$echo,0 .................................................................... Disable echoing.
+$echo,1 .................................................................... Enable echoing.
+
+==========================================================================================================================================================================================
+
+O protocolo separa os comandos e valores como strings (independente se é texto ou numérico) e disponibiliza estas strings para a aplicação, a aplicação deverá usar o valor recebido como 
+string, ou converter para o equivalente valor numérico (quando necessário). 
+
+A quantidade máxima de caracteres por valor é de 20 caracteres
+
+
+
+
+
+
+
+
+
