@@ -62,18 +62,27 @@ typedef enum TEXTUAL_PROTOCOL_CLEAR
 	CLEAR_DATA_PACKET,
 	CLEAR_INDEXES_OF_DELIMITERS,
 	CLEAR_COMMAND,
-	CLEAR_AFTER_DECODE
+	CLEAR_AFTER_EXTRACT_DATA
 } TextualProtocolClear;
+
+typedef enum TEXTUAL_PROTOCOL_RX_COMMANDS
+{
+	CMD_RX_COMMAND_UNKNOWN = 0x00,
+	CMD_RX_SET_ECHO_STATUS = 0x01,
+	CMD_RX_SET_BLINK_PATTERN = 0x02
+} DecodedReceivedCommands;
 
 typedef struct
 {
 	uint8_t starterChar;
 	uint8_t delimiter;
 	uint8_t commandLength;
+	uint8_t commandCode;
 	uint8_t length;
 	uint8_t byteIndex;
-	Bool enableDecoding;
+	Bool enableExtractData;
 	Bool enableEcho;
+	Bool enableDecodeExtractedCommand;
 	uint8_t qtyOfDelimiters;
 	uint8_t dataPacket[QTY_MAX_RX_DATA_BYTES];
 	uint8_t values[QTY_MAX_OF_VALUES][QTY_MAX_OF_BYTES_PER_VALUE];
@@ -87,12 +96,12 @@ void textualProtocolInit(TextualProtocol *textualProtocol, uint8_t starterChar, 
 void textualProtocolAppendByte(TextualProtocol *textualProtocol, uint8_t receivedByte);
 void textualProtocolClear(TextualProtocol *textualProtocol, TextualProtocolClear clear);
 void textualProtocolSendStatusMessage(TextualProtocol *textualProtocol, TextualProtocolStatusMessages statusMessage);
-void textualProtocolDecode(TextualProtocol *textualProtocol);
+void textualProtocolExtractData(TextualProtocol *textualProtocol);
 void textualProtocolSendNewLine(TextualProtocol *textualProtocol);
 void textualProtocolExtractCommand(TextualProtocol *textualProtocol);
 void textualProtocolFindDelimiters(TextualProtocol *textualProtocol);
 void textualProtocolExtractValues(TextualProtocol *textualProtocol);
-
+void textualProtocolDecodeExtractedCommand(TextualProtocol *textualProtocol);
 void textualProtocolPrintCurrentData(TextualProtocol *textualProtocol);
 
 Bool textualProtocolGetEchoEnable(TextualProtocol *textualProtocol);

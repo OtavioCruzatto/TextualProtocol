@@ -7,6 +7,12 @@
 
 #include "textualProtocol.h"
 
+const uint8_t fixedTextualCommands[2][11] =
+{
+		{'e','c','h','o',0,0,0,0,0,0,0},
+		{'b','l','i','n','k','p','a','t','t',0,0}
+};
+
 // ======== Init =========== //
 void textualProtocolInit(TextualProtocol *textualProtocol, uint8_t starterChar, uint8_t delimeter, UART_HandleTypeDef huart)
 {
@@ -28,7 +34,7 @@ void textualProtocolAppendByte(TextualProtocol *textualProtocol, uint8_t receive
 			{
 				textualProtocolSendNewLine(textualProtocol);
 			}
-			textualProtocol->enableDecoding = TRUE;
+			textualProtocol->enableExtractData = TRUE;
 		}
 		else
 		{
@@ -36,7 +42,7 @@ void textualProtocolAppendByte(TextualProtocol *textualProtocol, uint8_t receive
 			textualProtocolSendStatusMessage(textualProtocol, STATUS_MESSAGE_SYNTAX_ERROR);
 		}
 	}
-	else if ((receivedByte >= ' ') && (receivedByte <= 'z') && (textualProtocol->enableDecoding == FALSE))
+	else if ((receivedByte >= ' ') && (receivedByte <= 'z') && (textualProtocol->enableExtractData == FALSE))
 	{
 		if (textualProtocol->byteIndex < QTY_MAX_RX_DATA_BYTES)
 		{
@@ -62,9 +68,11 @@ void textualProtocolClear(TextualProtocol *textualProtocol, TextualProtocolClear
 			textualProtocol->length = 0;
 			textualProtocol->byteIndex = 0;
 			textualProtocol->qtyOfDelimiters = 0;
-			textualProtocol->enableDecoding = FALSE;
+			textualProtocol->enableExtractData = FALSE;
 			textualProtocol->textualProtocolRxStatus = INVALID_RX_TEXTUAL_PROTOCOL;
 			textualProtocol->commandLength = 0;
+			textualProtocol->commandCode = 0;
+			textualProtocol->enableDecodeExtractedCommand = FALSE;
 			memset(textualProtocol->dataPacket, 0x00, QTY_MAX_RX_DATA_BYTES);
 			memset(textualProtocol->indexesOfDelimiters, 0x00, QTY_MAX_OF_DELIMITERS);
 			memset(textualProtocol->command, 0x00, QTY_MAX_OF_BYTES_IN_COMMAND);
@@ -96,14 +104,16 @@ void textualProtocolClear(TextualProtocol *textualProtocol, TextualProtocolClear
 
 		case CLEAR_COMMAND:
 			textualProtocol->commandLength = 0;
+			textualProtocol->commandCode = 0;
+			textualProtocol->enableDecodeExtractedCommand = FALSE;
 			memset(textualProtocol->command, 0x00, QTY_MAX_OF_BYTES_IN_COMMAND);
 			break;
 
-		case CLEAR_AFTER_DECODE:
+		case CLEAR_AFTER_EXTRACT_DATA:
 			textualProtocol->length = 0;
 			textualProtocol->byteIndex = 0;
 			textualProtocol->qtyOfDelimiters = 0;
-			textualProtocol->enableDecoding = FALSE;
+			textualProtocol->enableExtractData = FALSE;
 			memset(textualProtocol->dataPacket, 0x00, QTY_MAX_RX_DATA_BYTES);
 			memset(textualProtocol->indexesOfDelimiters, 0x00, QTY_MAX_OF_DELIMITERS);
 			break;
@@ -143,24 +153,28 @@ void textualProtocolSendNewLine(TextualProtocol *textualProtocol)
 	HAL_UART_Transmit(&textualProtocol->huart, (uint8_t *) "\r\n", 2, HAL_MAX_DELAY);
 }
 
-void textualProtocolDecode(TextualProtocol *textualProtocol)
+void textualProtocolExtractData(TextualProtocol *textualProtocol)
 {
-	if (textualProtocol->dataPacket[0] != textualProtocol->starterChar)
+	if (textualProtocol->enableExtractData == TRUE)
 	{
-		textualProtocolSendStatusMessage(textualProtocol, STATUS_MESSAGE_SYNTAX_ERROR);
-		textualProtocolClear(textualProtocol, CLEAR_ALL);
-		return;
+		textualProtocol->enableExtractData = FALSE;
+		if (textualProtocol->dataPacket[0] != textualProtocol->starterChar)
+		{
+			textualProtocolSendStatusMessage(textualProtocol, STATUS_MESSAGE_SYNTAX_ERROR);
+			textualProtocolClear(textualProtocol, CLEAR_ALL);
+			return;
+		}
+
+		textualProtocolExtractCommand(textualProtocol);
+		textualProtocolFindDelimiters(textualProtocol);
+
+		if (textualProtocol->qtyOfDelimiters > 0)
+		{
+			textualProtocolExtractValues(textualProtocol);
+		}
+
+		textualProtocolClear(textualProtocol, CLEAR_AFTER_EXTRACT_DATA);
 	}
-
-	textualProtocolExtractCommand(textualProtocol);
-	textualProtocolFindDelimiters(textualProtocol);
-
-	if (textualProtocol->qtyOfDelimiters > 0)
-	{
-		textualProtocolExtractValues(textualProtocol);
-	}
-
-	textualProtocolClear(textualProtocol, CLEAR_AFTER_DECODE);
 }
 
 void textualProtocolExtractCommand(TextualProtocol *textualProtocol)
@@ -171,7 +185,7 @@ void textualProtocolExtractCommand(TextualProtocol *textualProtocol)
 		||
 		((textualProtocol->dataPacket[1] >= 'a') && (textualProtocol->dataPacket[1] <= 'z')))
 	{
-		textualProtocol->textualProtocolRxStatus = VALID_RX_TEXTUAL_PROTOCOL;
+		textualProtocol->enableDecodeExtractedCommand = TRUE;
 		while (textualProtocol->commandLength < (QTY_MAX_OF_BYTES_IN_COMMAND - 1))
 		{
 			if (textualProtocol->dataPacket[i] == textualProtocol->delimiter)
@@ -195,6 +209,53 @@ void textualProtocolExtractCommand(TextualProtocol *textualProtocol)
 		textualProtocolSendStatusMessage(textualProtocol, STATUS_MESSAGE_UNKNOWN_COMMAND);
 		textualProtocolClear(textualProtocol, CLEAR_ALL);
 		return;
+	}
+}
+
+void textualProtocolDecodeExtractedCommand(TextualProtocol *textualProtocol)
+{
+	uint8_t qtyOfFixedCommands = 2;
+	uint8_t currentFixedCommand = 0;
+	uint8_t currentByteInFixedCommand = 0;
+
+	if (textualProtocol->enableDecodeExtractedCommand == TRUE)
+	{
+		textualProtocol->enableDecodeExtractedCommand = FALSE;
+
+		for (currentFixedCommand = 0; currentFixedCommand < qtyOfFixedCommands; currentFixedCommand++)
+		{
+			for (currentByteInFixedCommand = 0; currentByteInFixedCommand < QTY_MAX_OF_BYTES_IN_COMMAND; currentByteInFixedCommand++)
+			{
+				if (textualProtocol->command[currentByteInFixedCommand] != fixedTextualCommands[currentFixedCommand][currentByteInFixedCommand])
+				{
+					break;
+				}
+
+				if (currentByteInFixedCommand == (QTY_MAX_OF_BYTES_IN_COMMAND-1))
+				{
+					if (currentFixedCommand == 0)
+					{
+						textualProtocol->commandCode = CMD_RX_SET_ECHO_STATUS;
+						textualProtocolSendStatusMessage(textualProtocol, STATUS_MESSAGE_OK);
+						//textualProtocolPrintCurrentData(textualProtocol);
+						textualProtocolClear(textualProtocol, CLEAR_ALL);
+						return;
+					}
+					else if (currentFixedCommand == 1)
+					{
+						textualProtocol->commandCode = CMD_RX_SET_BLINK_PATTERN;
+						textualProtocolSendStatusMessage(textualProtocol, STATUS_MESSAGE_OK);
+						//textualProtocolPrintCurrentData(textualProtocol);
+						textualProtocolClear(textualProtocol, CLEAR_ALL);
+						return;
+					}
+				}
+			}
+		}
+
+		textualProtocolSendStatusMessage(textualProtocol, STATUS_MESSAGE_UNKNOWN_COMMAND);
+		//textualProtocolPrintCurrentData(textualProtocol);
+		textualProtocolClear(textualProtocol, CLEAR_ALL);
 	}
 }
 

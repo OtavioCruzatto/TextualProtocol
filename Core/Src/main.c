@@ -174,19 +174,12 @@ int main(void)
 			  break;
 
 		  case 1:
-			  if (textProt.enableDecoding == TRUE)
-			  {
-				  textProt.enableDecoding = FALSE;
-				  textualProtocolDecode(&textProt);
-			  }
+			  textualProtocolExtractData(&textProt);
 			  stateMachine = 2;
 			  break;
 
 		  case 2:
-			  if (sendDataDelay >= DELAY_5000_MILISECONDS)
-			  {
-				  sendDataDelay = 0;
-			  }
+			  textualProtocolDecodeExtractedCommand(&textProt);
 			  stateMachine = 3;
 			  break;
 
@@ -204,6 +197,10 @@ int main(void)
 			  break;
 
 		  case 5:
+			  if (sendDataDelay >= DELAY_5000_MILISECONDS)
+			  {
+				  sendDataDelay = 0;
+			  }
 			  stateMachine = 0;
 			  break;
 
