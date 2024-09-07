@@ -31,6 +31,9 @@ Core/Src/stm32f4xx_it.o: ../Core/Src/stm32f4xx_it.c ../Core/Inc/main.h \
  C:/Users/Otavi/Documents/Embed/STM32/Projects/TextualProtocol/App/Inc/enums.h \
  C:/Users/Otavi/Documents/Embed/STM32/Projects/TextualProtocol/App/Inc/defs.h \
  C:/Users/Otavi/Documents/Embed/STM32/Projects/TextualProtocol/App/Inc/blinkLed.h \
+ C:/Users/Otavi/Documents/Embed/STM32/Projects/TextualProtocol/TextualProtocol/Inc/textualProtocol.h \
+ C:/Users/Otavi/Documents/Embed/STM32/Projects/TextualProtocol/App/Inc/defs.h \
+ C:/Users/Otavi/Documents/Embed/STM32/Projects/TextualProtocol/App/Inc/enums.h \
  ../Core/Inc/stm32f4xx_it.h
 ../Core/Inc/main.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:
@@ -65,4 +68,7 @@ C:/Users/Otavi/Documents/Embed/STM32/Projects/TextualProtocol/App/Inc/app.h:
 C:/Users/Otavi/Documents/Embed/STM32/Projects/TextualProtocol/App/Inc/enums.h:
 C:/Users/Otavi/Documents/Embed/STM32/Projects/TextualProtocol/App/Inc/defs.h:
 C:/Users/Otavi/Documents/Embed/STM32/Projects/TextualProtocol/App/Inc/blinkLed.h:
+C:/Users/Otavi/Documents/Embed/STM32/Projects/TextualProtocol/TextualProtocol/Inc/textualProtocol.h:
+C:/Users/Otavi/Documents/Embed/STM32/Projects/TextualProtocol/App/Inc/defs.h:
+C:/Users/Otavi/Documents/Embed/STM32/Projects/TextualProtocol/App/Inc/enums.h:
 ../Core/Inc/stm32f4xx_it.h:

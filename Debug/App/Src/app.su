@@ -1,3 +1,10 @@
-../App/Src/app.c:11:6:appInit	24	static
-../App/Src/app.c:19:6:appExecuteBlinkLed	16	static
-../App/Src/app.c:24:10:appGetBlinkDelay	16	static
+../App/Src/app.c:11:6:appInit	104	static
+../App/Src/app.c:22:6:appExecuteBlinkLed	16	static
+../App/Src/app.c:28:6:appAppendTpByte	16	static
+../App/Src/app.c:33:6:appExtractTpData	16	static
+../App/Src/app.c:38:6:appDecodeExtractedTpCommand	16	static
+../App/Src/app.c:43:6:appPrintCurrentTpData	16	static
+../App/Src/app.c:48:6:appClearTpData	16	static
+../App/Src/app.c:54:10:appGetBlinkDelay	16	static
+../App/Src/app.c:59:6:appGetTpEchoEnable	16	static
+../App/Src/app.c:64:32:appGetCommandStatus	16	static

@@ -9,8 +9,8 @@
 
 const uint8_t fixedTextualCommands[2][11] =
 {
-		{'e','c','h','o',0,0,0,0,0,0,0},
-		{'b','l','i','n','k','p','a','t','t',0,0}
+		"echo",
+		"blinkpatt"
 };
 
 // ======== Init =========== //
@@ -70,6 +70,7 @@ void textualProtocolClear(TextualProtocol *textualProtocol, TextualProtocolClear
 			textualProtocol->qtyOfDelimiters = 0;
 			textualProtocol->enableExtractData = FALSE;
 			textualProtocol->textualProtocolRxStatus = INVALID_RX_TEXTUAL_PROTOCOL;
+			textualProtocol->textualProtocolRxCommandStatus = INVALID_RX_COMMAND;
 			textualProtocol->commandLength = 0;
 			textualProtocol->commandCode = 0;
 			textualProtocol->enableDecodeExtractedCommand = FALSE;
@@ -103,6 +104,7 @@ void textualProtocolClear(TextualProtocol *textualProtocol, TextualProtocolClear
 			break;
 
 		case CLEAR_COMMAND:
+			textualProtocol->textualProtocolRxCommandStatus = INVALID_RX_COMMAND;
 			textualProtocol->commandLength = 0;
 			textualProtocol->commandCode = 0;
 			textualProtocol->enableDecodeExtractedCommand = FALSE;
@@ -116,6 +118,11 @@ void textualProtocolClear(TextualProtocol *textualProtocol, TextualProtocolClear
 			textualProtocol->enableExtractData = FALSE;
 			memset(textualProtocol->dataPacket, 0x00, QTY_MAX_RX_DATA_BYTES);
 			memset(textualProtocol->indexesOfDelimiters, 0x00, QTY_MAX_OF_DELIMITERS);
+			break;
+
+		case CLEAR_AFTER_DECODE_EXTRACTED_COMMAND:
+			textualProtocol->commandLength = 0;
+			textualProtocol->enableDecodeExtractedCommand = FALSE;
 			break;
 
 		default:
@@ -236,17 +243,19 @@ void textualProtocolDecodeExtractedCommand(TextualProtocol *textualProtocol)
 					if (currentFixedCommand == 0)
 					{
 						textualProtocol->commandCode = CMD_RX_SET_ECHO_STATUS;
+						textualProtocol->textualProtocolRxCommandStatus = VALID_RX_COMMAND;
 						textualProtocolSendStatusMessage(textualProtocol, STATUS_MESSAGE_OK);
 						//textualProtocolPrintCurrentData(textualProtocol);
-						textualProtocolClear(textualProtocol, CLEAR_ALL);
+						textualProtocolClear(textualProtocol, CLEAR_AFTER_DECODE_EXTRACTED_COMMAND);
 						return;
 					}
 					else if (currentFixedCommand == 1)
 					{
 						textualProtocol->commandCode = CMD_RX_SET_BLINK_PATTERN;
+						textualProtocol->textualProtocolRxCommandStatus = VALID_RX_COMMAND;
 						textualProtocolSendStatusMessage(textualProtocol, STATUS_MESSAGE_OK);
 						//textualProtocolPrintCurrentData(textualProtocol);
-						textualProtocolClear(textualProtocol, CLEAR_ALL);
+						textualProtocolClear(textualProtocol, CLEAR_AFTER_DECODE_EXTRACTED_COMMAND);
 						return;
 					}
 				}
@@ -334,4 +343,9 @@ void textualProtocolPrintCurrentData(TextualProtocol *textualProtocol)
 Bool textualProtocolGetEchoEnable(TextualProtocol *textualProtocol)
 {
 	return textualProtocol->enableEcho;
+}
+
+TextualProtocolRxCommandStatus textualProtocolGetCommandStatus(TextualProtocol *textualProtocol)
+{
+	return textualProtocol->textualProtocolRxCommandStatus;
 }

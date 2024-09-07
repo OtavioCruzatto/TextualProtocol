@@ -22,8 +22,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
-#include "textualProtocol.h"
-
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -54,7 +52,6 @@ uint8_t stateMachine = 0x00;
 uint16_t sendDataDelay = 0;
 uint16_t blinkLedDelay = 0;
 
-TextualProtocol textProt;
 App app;
 
 /* USER CODE END PV */
@@ -91,11 +88,11 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	if (huart == &huart2)
 	{
 		HAL_UART_Receive_IT(&huart2, &receivedByte, 1);
-		if (textualProtocolGetEchoEnable(&textProt) == TRUE)
+		if (appGetTpEchoEnable(&app) == TRUE)
 		{
 			HAL_UART_Transmit(&huart2, &receivedByte, 1, HAL_MAX_DELAY);
 		}
-		textualProtocolAppendByte(&textProt, receivedByte);
+		appAppendTpByte(&app, receivedByte);
 		receivedByte = 0x00;
 	}
 }
@@ -136,7 +133,6 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   HAL_TIM_Base_Start_IT(&htim9);
-  textualProtocolInit(&textProt, '$', ',', huart2);
   appInit(&app, LED_GPIO_Port, LED_Pin, huart2);
   HAL_UART_Receive_IT(&huart2, &receivedByte, 1);
 
@@ -174,21 +170,21 @@ int main(void)
 			  break;
 
 		  case 1:
-			  textualProtocolExtractData(&textProt);
+			  appExtractTpData(&app);
 			  stateMachine = 2;
 			  break;
 
 		  case 2:
-			  textualProtocolDecodeExtractedCommand(&textProt);
+			  appDecodeExtractedTpCommand(&app);
 			  stateMachine = 3;
 			  break;
 
 		  case 3:
 			  stateMachine = 4;
-			  if (textProt.textualProtocolRxStatus == VALID_RX_TEXTUAL_PROTOCOL)
+			  if (appGetCommandStatus(&app) == VALID_RX_COMMAND)
 			  {
-				  textualProtocolPrintCurrentData(&textProt);
-				  textualProtocolClear(&textProt, CLEAR_ALL);
+				  appPrintCurrentTpData(&app);
+				  appClearTpData(&app, CLEAR_ALL);
 			  }
 			  break;
 

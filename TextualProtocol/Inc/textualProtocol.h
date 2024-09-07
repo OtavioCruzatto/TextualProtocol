@@ -47,6 +47,19 @@ typedef enum TEXTUAL_PROTOCOL_RX_STATUS
 	VALID_RX_TEXTUAL_PROTOCOL
 } TextualProtocolRxStatus;
 
+typedef enum TEXTUAL_PROTOCOL_RX_COMMANDO_STATUS
+{
+	INVALID_RX_COMMAND = 0x00,
+	VALID_RX_COMMAND
+} TextualProtocolRxCommandStatus;
+
+typedef enum TEXTUAL_PROTOCOL_RX_COMMANDS
+{
+	CMD_RX_COMMAND_UNKNOWN = 0x00,
+	CMD_RX_SET_ECHO_STATUS = 0x01,
+	CMD_RX_SET_BLINK_PATTERN = 0x02
+} DecodedReceivedCommands;
+
 typedef enum TEXTUAL_PROTOCOL_STATUS_MESSAGES
 {
 	STATUS_MESSAGE_OK = 0xAA,
@@ -62,15 +75,9 @@ typedef enum TEXTUAL_PROTOCOL_CLEAR
 	CLEAR_DATA_PACKET,
 	CLEAR_INDEXES_OF_DELIMITERS,
 	CLEAR_COMMAND,
-	CLEAR_AFTER_EXTRACT_DATA
+	CLEAR_AFTER_EXTRACT_DATA,
+	CLEAR_AFTER_DECODE_EXTRACTED_COMMAND
 } TextualProtocolClear;
-
-typedef enum TEXTUAL_PROTOCOL_RX_COMMANDS
-{
-	CMD_RX_COMMAND_UNKNOWN = 0x00,
-	CMD_RX_SET_ECHO_STATUS = 0x01,
-	CMD_RX_SET_BLINK_PATTERN = 0x02
-} DecodedReceivedCommands;
 
 typedef struct
 {
@@ -89,6 +96,7 @@ typedef struct
 	uint8_t indexesOfDelimiters[QTY_MAX_OF_DELIMITERS];
 	uint8_t command[QTY_MAX_OF_BYTES_IN_COMMAND];
 	TextualProtocolRxStatus textualProtocolRxStatus;
+	TextualProtocolRxCommandStatus textualProtocolRxCommandStatus;
 	UART_HandleTypeDef huart;
 } TextualProtocol;
 
@@ -105,5 +113,6 @@ void textualProtocolDecodeExtractedCommand(TextualProtocol *textualProtocol);
 void textualProtocolPrintCurrentData(TextualProtocol *textualProtocol);
 
 Bool textualProtocolGetEchoEnable(TextualProtocol *textualProtocol);
+TextualProtocolRxCommandStatus textualProtocolGetCommandStatus(TextualProtocol *textualProtocol);
 
 #endif /* INC_TEXTUALPROTOCOL_H_ */
