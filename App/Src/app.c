@@ -52,6 +52,9 @@ void appClearTpData(App *app, TextualProtocolClear clear)
 
 void appExecuteReceivedCommandRoutine(App *app)
 {
+	uint8_t sizeOfStringValue = 0;
+	uint8_t blinkPattern = 0;
+
 	switch (textualProtocolGetDecodedCommand(&app->textualProtocol))
 	{
 		case CMD_RX_COMMAND_UNKNOWN:
@@ -75,7 +78,24 @@ void appExecuteReceivedCommandRoutine(App *app)
 			break;
 
 		case CMD_RX_SET_BLINK_PATTERN:
-			textualProtocolSendStatusMessage(&app->textualProtocol, STATUS_MESSAGE_OK);
+			sizeOfStringValue = strlen((char *) app->textualProtocol.values[0]);
+			if (sizeOfStringValue > 0)
+			{
+				blinkPattern = atoi((char *) app->textualProtocol.values[0]);
+				if ((blinkPattern >= 0) && (blinkPattern <=5))
+				{
+					blinkLedSetBlinkPattern(&app->blinkLed, blinkPattern);
+					textualProtocolSendStatusMessage(&app->textualProtocol, STATUS_MESSAGE_OK);
+				}
+				else
+				{
+					textualProtocolSendStatusMessage(&app->textualProtocol, STATUS_MESSAGE_VALUE_ERROR);
+				}
+			}
+			else
+			{
+				textualProtocolSendStatusMessage(&app->textualProtocol, STATUS_MESSAGE_VALUE_ERROR);
+			}
 			break;
 	}
 

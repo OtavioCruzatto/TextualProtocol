@@ -8,6 +8,7 @@
 #ifndef INC_APP_H_
 #define INC_APP_H_
 
+#include <stdlib.h>
 #include "enums.h"
 #include "defs.h"
 #include "blinkLed.h"
