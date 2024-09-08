@@ -38,6 +38,7 @@ void appDecodeExtractedTpCommand(App *app);
 void appPrintCurrentTpData(App *app);
 void appClearTpData(App *app, TextualProtocolClear textualProtocolClear);
 
+void appExecuteReceivedCommandRoutine(App *app);
 
 // ======= Getters and Setters ======== //
 uint32_t appGetBlinkDelay(App *app);

@@ -72,7 +72,7 @@ void textualProtocolClear(TextualProtocol *textualProtocol, TextualProtocolClear
 			textualProtocol->textualProtocolRxStatus = INVALID_RX_TEXTUAL_PROTOCOL;
 			textualProtocol->textualProtocolRxCommandStatus = INVALID_RX_COMMAND;
 			textualProtocol->commandLength = 0;
-			textualProtocol->commandCode = 0;
+			textualProtocol->commandCode = CMD_RX_COMMAND_UNKNOWN;
 			textualProtocol->enableDecodeExtractedCommand = FALSE;
 			memset(textualProtocol->dataPacket, 0x00, QTY_MAX_RX_DATA_BYTES);
 			memset(textualProtocol->indexesOfDelimiters, 0x00, QTY_MAX_OF_DELIMITERS);
@@ -106,7 +106,7 @@ void textualProtocolClear(TextualProtocol *textualProtocol, TextualProtocolClear
 		case CLEAR_COMMAND:
 			textualProtocol->textualProtocolRxCommandStatus = INVALID_RX_COMMAND;
 			textualProtocol->commandLength = 0;
-			textualProtocol->commandCode = 0;
+			textualProtocol->commandCode = CMD_RX_COMMAND_UNKNOWN;
 			textualProtocol->enableDecodeExtractedCommand = FALSE;
 			memset(textualProtocol->command, 0x00, QTY_MAX_OF_BYTES_IN_COMMAND);
 			break;
@@ -244,7 +244,7 @@ void textualProtocolDecodeExtractedCommand(TextualProtocol *textualProtocol)
 					{
 						textualProtocol->commandCode = CMD_RX_SET_ECHO_STATUS;
 						textualProtocol->textualProtocolRxCommandStatus = VALID_RX_COMMAND;
-						textualProtocolSendStatusMessage(textualProtocol, STATUS_MESSAGE_OK);
+						//textualProtocolSendStatusMessage(textualProtocol, STATUS_MESSAGE_OK);
 						//textualProtocolPrintCurrentData(textualProtocol);
 						textualProtocolClear(textualProtocol, CLEAR_AFTER_DECODE_EXTRACTED_COMMAND);
 						return;
@@ -253,7 +253,7 @@ void textualProtocolDecodeExtractedCommand(TextualProtocol *textualProtocol)
 					{
 						textualProtocol->commandCode = CMD_RX_SET_BLINK_PATTERN;
 						textualProtocol->textualProtocolRxCommandStatus = VALID_RX_COMMAND;
-						textualProtocolSendStatusMessage(textualProtocol, STATUS_MESSAGE_OK);
+						//textualProtocolSendStatusMessage(textualProtocol, STATUS_MESSAGE_OK);
 						//textualProtocolPrintCurrentData(textualProtocol);
 						textualProtocolClear(textualProtocol, CLEAR_AFTER_DECODE_EXTRACTED_COMMAND);
 						return;
@@ -345,7 +345,17 @@ Bool textualProtocolGetEchoEnable(TextualProtocol *textualProtocol)
 	return textualProtocol->enableEcho;
 }
 
+void textualProtocalSetEchoEnable(TextualProtocol *textualProtocol, Bool status)
+{
+	textualProtocol->enableEcho = status;
+}
+
 TextualProtocolRxCommandStatus textualProtocolGetCommandStatus(TextualProtocol *textualProtocol)
 {
 	return textualProtocol->textualProtocolRxCommandStatus;
+}
+
+DecodedReceivedCommands textualProtocolGetDecodedCommand(TextualProtocol *textualProtocol)
+{
+	return textualProtocol->commandCode;
 }

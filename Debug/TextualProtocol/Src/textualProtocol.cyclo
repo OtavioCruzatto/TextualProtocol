@@ -10,4 +10,6 @@
 ../TextualProtocol/Src/textualProtocol.c:290:6:textualProtocolExtractValues	5
 ../TextualProtocol/Src/textualProtocol.c:310:6:textualProtocolPrintCurrentData	2
 ../TextualProtocol/Src/textualProtocol.c:343:6:textualProtocolGetEchoEnable	1
-../TextualProtocol/Src/textualProtocol.c:348:32:textualProtocolGetCommandStatus	1
+../TextualProtocol/Src/textualProtocol.c:348:6:textualProtocalSetEchoEnable	1
+../TextualProtocol/Src/textualProtocol.c:353:32:textualProtocolGetCommandStatus	1
+../TextualProtocol/Src/textualProtocol.c:358:25:textualProtocolGetDecodedCommand	1

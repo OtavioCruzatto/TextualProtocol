@@ -60,11 +60,12 @@ $echo,1 .................................................................... Ena
 
 ==========================================================================================================================================================================================
 
-O protocolo separa os comandos e valores como strings (independente se é texto ou numérico) e disponibiliza estas strings para a aplicação, a aplicação deverá usar o valor recebido como 
-string, ou converter para o equivalente valor numérico (quando necessário). 
+The protocol splits commands and values as strings (they can be both text or numeric data) and provide this strings to application.
+The application shall use the received value as strings, or convert for its specific numeric value (when it's needed).
 
-A quantidade máxima de caracteres por valor é de 20 caracteres
+The maximum quantity os characters per value is 20.
 
+==========================================================================================================================================================================================
 
 
 

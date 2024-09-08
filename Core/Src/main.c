@@ -183,8 +183,7 @@ int main(void)
 			  stateMachine = 4;
 			  if (appGetCommandStatus(&app) == VALID_RX_COMMAND)
 			  {
-				  appPrintCurrentTpData(&app);
-				  appClearTpData(&app, CLEAR_ALL);
+				  appExecuteReceivedCommandRoutine(&app);
 			  }
 			  break;
 

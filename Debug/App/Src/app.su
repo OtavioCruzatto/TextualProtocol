@@ -5,6 +5,7 @@
 ../App/Src/app.c:38:6:appDecodeExtractedTpCommand	16	static
 ../App/Src/app.c:43:6:appPrintCurrentTpData	16	static
 ../App/Src/app.c:48:6:appClearTpData	16	static
-../App/Src/app.c:54:10:appGetBlinkDelay	16	static
-../App/Src/app.c:59:6:appGetTpEchoEnable	16	static
-../App/Src/app.c:64:32:appGetCommandStatus	16	static
+../App/Src/app.c:53:6:appExecuteReceivedCommandRoutine	16	static
+../App/Src/app.c:86:10:appGetBlinkDelay	16	static
+../App/Src/app.c:91:6:appGetTpEchoEnable	16	static
+../App/Src/app.c:96:32:appGetCommandStatus	16	static

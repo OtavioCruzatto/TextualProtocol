@@ -113,6 +113,8 @@ void textualProtocolDecodeExtractedCommand(TextualProtocol *textualProtocol);
 void textualProtocolPrintCurrentData(TextualProtocol *textualProtocol);
 
 Bool textualProtocolGetEchoEnable(TextualProtocol *textualProtocol);
+void textualProtocalSetEchoEnable(TextualProtocol *textualProtocol, Bool status);
 TextualProtocolRxCommandStatus textualProtocolGetCommandStatus(TextualProtocol *textualProtocol);
+DecodedReceivedCommands textualProtocolGetDecodedCommand(TextualProtocol *textualProtocol);
 
 #endif /* INC_TEXTUALPROTOCOL_H_ */

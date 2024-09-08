@@ -50,6 +50,38 @@ void appClearTpData(App *app, TextualProtocolClear clear)
 	textualProtocolClear(&app->textualProtocol, clear);
 }
 
+void appExecuteReceivedCommandRoutine(App *app)
+{
+	switch (textualProtocolGetDecodedCommand(&app->textualProtocol))
+	{
+		case CMD_RX_COMMAND_UNKNOWN:
+			break;
+
+		case CMD_RX_SET_ECHO_STATUS:
+			if (app->textualProtocol.values[0][0] == '0')
+			{
+				textualProtocalSetEchoEnable(&app->textualProtocol, FALSE);
+				textualProtocolSendStatusMessage(&app->textualProtocol, STATUS_MESSAGE_OK);
+			}
+			else if (app->textualProtocol.values[0][0] == '1')
+			{
+				textualProtocalSetEchoEnable(&app->textualProtocol, TRUE);
+				textualProtocolSendStatusMessage(&app->textualProtocol, STATUS_MESSAGE_OK);
+			}
+			else
+			{
+				textualProtocolSendStatusMessage(&app->textualProtocol, STATUS_MESSAGE_VALUE_ERROR);
+			}
+			break;
+
+		case CMD_RX_SET_BLINK_PATTERN:
+			textualProtocolSendStatusMessage(&app->textualProtocol, STATUS_MESSAGE_OK);
+			break;
+	}
+
+	textualProtocolClear(&app->textualProtocol, CLEAR_ALL);
+}
+
 // ======= Getters and Setters ======== //
 uint32_t appGetBlinkDelay(App *app)
 {
