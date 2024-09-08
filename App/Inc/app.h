@@ -14,20 +14,21 @@
 #include "blinkLed.h"
 #include "textualProtocol.h"
 
-typedef struct App App;
-
-struct App
+typedef struct
 {
 	// ======== LED =========== //
 	BlinkLed blinkLed;
 
 	// ======== Textual protocol =========== //
 	TextualProtocol textualProtocol;
-};
+} App;
 
 // ======== Init =========== //
 void appInit(App *app, GPIO_TypeDef* ledPort, uint16_t ledPin,
 			UART_HandleTypeDef huart);
+
+// ======== App =========== //
+void appExecuteReceivedCommandRoutine(App *app);
 
 // ======== LED =========== //
 void appExecuteBlinkLed(App *app);
@@ -38,8 +39,6 @@ void appExtractTpData(App *app);
 void appDecodeExtractedTpCommand(App *app);
 void appPrintCurrentTpData(App *app);
 void appClearTpData(App *app, TextualProtocolClear textualProtocolClear);
-
-void appExecuteReceivedCommandRoutine(App *app);
 
 // ======= Getters and Setters ======== //
 uint32_t appGetBlinkDelay(App *app);

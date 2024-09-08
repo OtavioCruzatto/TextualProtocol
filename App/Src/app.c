@@ -8,8 +8,7 @@
 #include "app.h"
 
 // ======== Init =========== //
-void appInit(App *app, GPIO_TypeDef* ledPort, uint16_t ledPin,
-			UART_HandleTypeDef huart)
+void appInit(App *app, GPIO_TypeDef* ledPort, uint16_t ledPin, UART_HandleTypeDef huart)
 {
 	// ======== LED =========== //
 	blinkLedInit(&app->blinkLed, ledPort, ledPin, PATTERN_TOGGLE_EACH_100_MS);
@@ -18,38 +17,7 @@ void appInit(App *app, GPIO_TypeDef* ledPort, uint16_t ledPin,
 	textualProtocolInit(&app->textualProtocol, '$', ',', huart);
 }
 
-// ======== LED =========== //
-void appExecuteBlinkLed(App *app)
-{
-	blinkLedExecuteBlink(&app->blinkLed);
-}
-
-// ======== Textual protocol =========== //
-void appAppendTpByte(App *app, uint8_t receivedByte)
-{
-	textualProtocolAppendByte(&app->textualProtocol, receivedByte);
-}
-
-void appExtractTpData(App *app)
-{
-	textualProtocolExtractData(&app->textualProtocol);
-}
-
-void appDecodeExtractedTpCommand(App *app)
-{
-	textualProtocolDecodeExtractedCommand(&app->textualProtocol);
-}
-
-void appPrintCurrentTpData(App *app)
-{
-	textualProtocolPrintCurrentData(&app->textualProtocol);
-}
-
-void appClearTpData(App *app, TextualProtocolClear clear)
-{
-	textualProtocolClear(&app->textualProtocol, clear);
-}
-
+// ======== App =========== //
 void appExecuteReceivedCommandRoutine(App *app)
 {
 	uint8_t sizeOfStringValue = 0;
@@ -97,9 +65,44 @@ void appExecuteReceivedCommandRoutine(App *app)
 				textualProtocolSendStatusMessage(&app->textualProtocol, STATUS_MESSAGE_VALUE_ERROR);
 			}
 			break;
+
+		default:
+			break;
 	}
 
 	textualProtocolClear(&app->textualProtocol, CLEAR_ALL);
+}
+
+// ======== LED =========== //
+void appExecuteBlinkLed(App *app)
+{
+	blinkLedExecuteBlink(&app->blinkLed);
+}
+
+// ======== Textual protocol =========== //
+void appAppendTpByte(App *app, uint8_t receivedByte)
+{
+	textualProtocolAppendByte(&app->textualProtocol, receivedByte);
+}
+
+void appExtractTpData(App *app)
+{
+	textualProtocolExtractData(&app->textualProtocol);
+}
+
+void appDecodeExtractedTpCommand(App *app)
+{
+	textualProtocolDecodeExtractedCommand(&app->textualProtocol);
+}
+
+void appPrintCurrentTpData(App *app)
+{
+	textualProtocolPrintCurrentData(&app->textualProtocol);
+}
+
+void appClearTpData(App *app, TextualProtocolClear clear)
+{
+	textualProtocolClear(&app->textualProtocol, clear);
 }
 
 // ======= Getters and Setters ======== //

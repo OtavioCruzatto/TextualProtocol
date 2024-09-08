@@ -24,6 +24,7 @@ void textualProtocolInit(TextualProtocol *textualProtocol, uint8_t starterChar, 
 	textualProtocolClear(textualProtocol, CLEAR_ALL);
 }
 
+// ======== Textual protocol =========== //
 void textualProtocolAppendByte(TextualProtocol *textualProtocol, uint8_t receivedByte)
 {
 	if ((receivedByte == CHAR_CR) || (receivedByte == CHAR_LF))
@@ -340,6 +341,7 @@ void textualProtocolPrintCurrentData(TextualProtocol *textualProtocol)
 	HAL_UART_Transmit(&textualProtocol->huart, ((uint8_t *) message), strlen(message), HAL_MAX_DELAY);
 }
 
+// ======= Getters and Setters ======== //
 Bool textualProtocolGetEchoEnable(TextualProtocol *textualProtocol)
 {
 	return textualProtocol->enableEcho;
